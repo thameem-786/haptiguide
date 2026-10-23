@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HaptiGuide Dashboard</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 48 58" aria-hidden="true"><path d="M24 2 4 12v18c0 14 9 22 20 26 11-4 20-12 20-26V12L24 2Zm0 10a7 7 0 1 1 0 14 7 7 0 0 1 0-14Zm0 36c-7-3-12-8-13-15 3-6 8-9 13-9s10 3 13 9c-1 7-6 12-13 15Z"/></svg>
+    </div>
+    <div>
+      <div class="brand-name">Hapti<span>Guide</span></div>
+      <div class="brand-subtitle">Smart Haptic Navigation</div>
+    </div>
+  </div>
+  <div class="top-status">
+    <div class="top-card">
+      <i class="status-dot" style="background:#ef4444"></i>
+      <div><b id="headerConnection">Device Disconnected</b><small id="headerDevice">ESP32 Offline</small></div>
+    </div>
+    <div class="top-card">
+      <span class="wifi-icon">&#128246;</span>
+      <div><b>Wi-Fi</b><small id="wifiIp">Waiting for ESP32</small></div>
+    </div>
+    <div class="top-card date-card">
+      <span class="wifi-icon" style="color:#9db0c9">&#128197;</span>
+      <div><b id="dateText">--</b><small id="timeText">--</small></div>
+    </div>
+  </div>
+</header>
+
+<div class="app-shell">
+  <nav class="sidebar">
+    <button class="nav-item active" data-page="Dashboard"><span>&#127968;</span>Dashboard</button>
+    <button class="nav-item" data-page="Map & Navigation"><span>&#128506;</span>Map &amp; Navigation</button>
+    <button class="nav-item" data-page="Destination"><span>&#128205;</span>Destination</button>
+    <button class="nav-item" data-page="Live View"><span>&#128247;</span>Live View</button>
+    <button class="nav-item" data-page="Device Status"><span>&#128225;</span>Device Status</button>
+    <button class="nav-item" data-page="User Manual"><span>&#128214;</span>User Manual</button>
+    <button class="nav-item" data-page="Settings"><span>&#9881;</span>Settings</button>
+    <div class="sidebar-bottom"><i class="tiny-dot"></i> Prototype &middot; not a certified mobility aid</div>
+  </nav>
+
+  <main class="content">
+
+    <section class="panel command-row">
+      <label class="destination-picker">Select Destination
+        <select id="destinationSelect">
+          <option value="e201">Communication Lab (E201)</option>
+          <option value="e202">VLSI Lab (E202)</option>
+          <option value="e203">Embedded Lab (E203)</option>
+          <option value="male">Restroom (Male)</option>
+          <option value="e204" selected>Electronics Lab (E204)</option>
+          <option value="e205">Faculty Room (E205)</option>
+          <option value="lift">Lift</option>
+          <option value="stairs1">Staircase (ST-1)</option>
+          <option value="stairs2">Staircase (ST-2)</option>
+          <option value="e206">Classroom (E206)</option>
+          <option value="e207">Project Lab (E207)</option>
+          <option value="e208">Seminar Hall (E208)</option>
+          <option value="female">Restroom (Female)</option>
+          <option value="open">Open Area</option>
+        </select>
+      </label>
+      <button class="start-button" id="startNav"><span>&#9654;</span>Start Navigation</button>
+      <button class="stop-button" id="stopNav"><span>&#9632;</span>Stop</button>
+    </section>
+
+    <div class="main-grid">
+
+      <section class="panel map-card">
+        <div class="map-titlebar">
+          <b>Indoor Map &mdash; MCET ECE Block (Sample)</b>
+          <label>Floor
+            <select id="floorSelect"><option>Floor 2</option><option>Floor 1</option><option>Ground Floor</option></select>
+          </label>
+        </div>
+        <div class="map-stage">
+          <div class="map-legend">
+            <div><i class="legend-dot blue"></i> Your Position</div>
+            <div><i class="legend-pin"></i> Destination</div>
+            <div><i class="line-sample green"></i> Planned Route</div>
+            <div><i class="line-sample red"></i> Blocked Path</div>
+            <div><i class="line-sample blue-line"></i> Alternative Route</div>
+            <div><span class="cross">&times;</span> Obstacle Detected</div>
+          </div>
+
+          <svg id="floorMap" viewBox="0 0 1536 880" role="img" aria-label="Floor plan with planned route">
+            <image href="{{ url_for('static', filename='floorplan.png') }}" x="0" y="0" width="1536" height="1024"/>
+
+            <g id="roomClickTargets" fill="transparent" style="cursor:pointer">
+              <rect data-destination="e201" x="235" y="45" width="295" height="177"/>
+              <rect data-destination="e202" x="545" y="45" width="345" height="177"/>
+              <rect data-destination="e203" x="905" y="45" width="365" height="177"/>
+              <rect data-destination="male" x="1295" y="45" width="180" height="185"/>
+              <rect data-destination="e204" x="1213" y="312" width="262" height="156"/>
+              <rect data-destination="e205" x="60" y="312" width="260" height="158"/>
+              <rect data-destination="lift" x="180" y="488" width="140" height="67"/>
+              <rect data-destination="stairs1" x="60" y="45" width="155" height="175"/>
+              <rect data-destination="stairs2" x="60" y="668" width="155" height="170"/>
+              <rect data-destination="e206" x="235" y="685" width="373" height="153"/>
+              <rect data-destination="e207" x="625" y="685" width="362" height="153"/>
+              <rect data-destination="e208" x="1003" y="685" width="472" height="153"/>
+              <rect data-destination="female" x="1295" y="485" width="180" height="183"/>
+              <rect data-destination="open" x="685" y="373" width="157" height="172"/>
+            </g>
+
+            <path id="blockedRoute" d="" fill="none" stroke="#e43d4c" stroke-width="7" stroke-dasharray="14 10" stroke-linecap="round" stroke-linejoin="round"/>
+            <path id="alternateRoute" d="" fill="none" stroke="#1671f9" stroke-width="7" stroke-dasharray="14 10" stroke-linecap="round" stroke-linejoin="round"/>
+            <path id="plannedRoute" d="" fill="none" stroke="#0f9652" stroke-width="8" stroke-dasharray="16 11" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+
+            <g id="obstacleMark" transform="translate(405 520)" style="display:none" pointer-events="none">
+              <path d="M-16 -16 16 16M16 -16-16 16" stroke="#df243a" stroke-width="9" stroke-linecap="round"/>
+            </g>
+
+            <g transform="translate(420 640)" pointer-events="none">
+              <circle r="24" fill="#1767f4" fill-opacity=".2"/>
+              <circle r="13" fill="#1767f4" stroke="#fff" stroke-width="5"/>
+            </g>
+
+            <g id="destinationMarker" transform="translate(0 0)" style="display:none" pointer-events="none">
+              <path d="M0 0C-5-12-19-24-19-37a19 19 0 1 1 38 0C19-24 5-12 0 0Z" fill="#e5243f" stroke="#fff" stroke-width="4"/>
+              <circle cy="-37" r="7" fill="#fff"/>
+            </g>
+          </svg>
+
+          <div class="map-zoom">
+            <button id="zoomIn" aria-label="Zoom in">+</button>
+            <button id="zoomOut" aria-label="Zoom out">&minus;</button>
+          </div>
+        </div>
+        <div class="map-footer">
+          <span id="mapStatus"></span>
+          <span>Shortest-path demo route &middot; no live indoor tracking</span>
+        </div>
+      </section>
+
+      <div class="right-column">
+
+        <section class="panel nav-info">
+          <h3>Navigation Info</h3>
+          <div class="nav-info-inner">
+            <div class="turn-icon" id="turnIcon">&uarr;</div>
+            <div class="next-turn">
+              <small>Next Instruction</small>
+              <b id="nextInstruction">Go Forward</b>
+              <span id="turnDistance">&mdash;</span>
+            </div>
+            <div class="vertical-rule"></div>
+            <div class="eta-icon">&#9201;</div>
+            <div class="eta-info">
+              <small>ETA</small>
+              <b id="eta">&mdash;</b>
+              <span id="remainingDistance">Distance Remaining: &mdash;</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel camera-panel">
+          <div class="dark-panel-heading"><span>&#128247;</span> Live Camera View <span class="demo-tag">DEMO</span></div>
+          <div class="camera-content">
+            <div class="camera-scene">
+              <div class="hall ceiling"></div>
+              <div class="hall-floor"></div>
+              <div class="hall-left"></div>
+              <div class="hall-right"></div>
+              <div class="hall-door door-one"></div>
+              <div class="hall-door door-two"></div>
+              <div class="plant"><i></i><b></b></div>
+              <div class="detect-box"><span>Plant</span></div>
+            </div>
+            <div class="detected-list">
+              <b>Detected Objects</b>
+              <div><span class="object-icon person-icon">&#9888;</span><span><span>Obstacle (ESP32)</span><small>Not Detected</small></span></div>
+              <div><span class="object-icon plant-icon">&#127807;</span><span><span>Plant</span><small>(demo)</small></span></div>
+              <div><span class="object-icon door-icon">&#128682;</span><span><span>Door</span><small>(demo)</small></span></div>
+              <div><span class="object-icon stairs-icon">&#129489;</span><span><span>Person</span><small>(demo)</small></span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel device-panel">
+          <div class="dark-panel-heading"><span>&#128225;</span> ESP32 Device Status
+            <button class="connected-pill" id="deviceToggle" style="margin-left:auto;background:#c72c3d">Disconnected</button>
+          </div>
+          <div class="device-content">
+            <div class="device-stat">
+              <span class="stat-icon green-icon">&#128267;</span>
+              <div><small>Battery</small><b id="batteryText">Unknown</b>
+                <div class="battery-bar"><i id="batteryFill" style="width:0%"></i></div></div>
+            </div>
+            <div class="device-stat gps-stat">
+              <span class="stat-icon teal-icon">&#128205;</span>
+              <div><small>GPS</small><b>Demo</b><small>Not connected</small></div>
+            </div>
+            <div class="device-stat haptiguide-stat">
+              <span class="stat-icon green-icon">&#128251;</span>
+              <div><small>HaptiGuide</small>
+                <b id="haptiguideText">ON <label class="switch"><input type="checkbox" id="hapticToggle" checked><span></span></label></b>
+                <small>LED Status</small>
+                <div class="led-line"><i id="ledDot" style="background:#e23b4b"></i><b id="ledText">Red (Disconnected)</b></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <div class="bottom-grid">
+      <section class="panel haptic-reference-panel">
+        <img src="{{ url_for('static', filename='haptic_reference.png') }}" alt="Haptic feedback guide and special alerts">
+      </section>
+      <section class="panel manual-panel">
+        <div class="section-heading"><span class="book-badge">&#128214;</span><h3>User Manual</h3></div>
+        <div class="manual-links">
+          <button data-manual="How to Wear HaptiGuide"><span>&#128085;</span>How to Wear HaptiGuide<b>&rsaquo;</b></button>
+          <button data-manual="Understanding Vibrations"><span>&#128243;</span>Understanding Vibrations<b>&rsaquo;</b></button>
+          <button data-manual="How to Select Destination"><span>&#128205;</span>How to Select Destination<b>&rsaquo;</b></button>
+          <button data-manual="Safety Guidelines"><span>&#128737;</span>Safety Guidelines<b>&rsaquo;</b></button>
+          <button data-manual="FAQ"><span>?</span>FAQ<b>&rsaquo;</b></button>
+        </div>
+      </section>
+    </div>
+
+    <footer>HaptiGuide prototype &middot; MCET ECE &middot; Not a certified mobility aid</footer>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<div class="modal-backdrop" id="manualModal" hidden>
+  <div class="modal">
+    <button class="modal-close" id="closeModal" aria-label="Close">&times;</button>
+    <h2 id="modalTitle"></h2>
+    <p id="modalBody"></p>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
