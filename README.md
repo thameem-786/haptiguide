@@ -38,27 +38,7 @@ HaptiGuide AI guides a user through touch instead of a screen or audio. It follo
 | 03 | Upper back | Forward / alert |
 | 04 | Lower back | Stop / danger |
 
-## Repository structure
 
-Add your files into these folders. Do not re-save or rename native files, because creation timestamps are audited.
-
-```
-HaptiGuide-AI/
-|-- README.md
-|-- cad/
-|   |-- step/                 # native .STEP files
-|   |-- drawings/             # HG-AI-CONCEPT-01, 02, 03 (PDF)
-|   `-- renders/              # exploded view, position map, module detail
-|-- electronics/
-|   |-- kicad/                # .kicad_sch, .kicad_pcb, DRC report
-|   `-- bom/                  # BOM spreadsheet
-|-- firmware/                 # ESP32 source code
-|-- software/                 # navigation dashboard source code
-|-- fea/                      # simulation files, stress plots, mesh statistics
-`-- evidence/
-    |-- photos/               # team photos with ID badges, bench photos
-    `-- screenshots/          # CAD feature tree, KiCad, dashboard
-```
 
 ## Hardware (prototype)
 
